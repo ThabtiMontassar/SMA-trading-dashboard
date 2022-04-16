@@ -15,7 +15,7 @@ with st.sidebar:
     stock = st.text_input('stock name', 'eth-usd')
     startdate = st.date_input(
      "start date",
-     datetime.date(2021, 4, 1))
+     datetime.date(2021, 1, 1))
 
     enddate = st.date_input(
      "end date",
