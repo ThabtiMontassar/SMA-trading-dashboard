@@ -12,14 +12,14 @@ st.title('Trading View')
 col1, col2 = st.columns([1, 4])
 with st.sidebar:
     st.subheader('Stock Ticker')
-    stock = st.text_input('stock name', 'AAPL')
+    stock = st.text_input('stock name', 'eth-usd')
     startdate = st.date_input(
      "start date",
-     datetime.date(2022, 4, 2))
+     datetime.date(2021, 4, 1))
 
     enddate = st.date_input(
      "end date",
-     datetime.date(2022, 4, 9))
+     datetime.date(2022, 4, 14))
     freq = st.selectbox(
      'Frequency',
      ('1m','2m','5m','15m','30m','60m','90m','1h','1d','5d','1wk','1mo','3mo'))
