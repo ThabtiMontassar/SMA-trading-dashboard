@@ -22,7 +22,7 @@ with st.sidebar:
      datetime.date(2022, 4, 14))
     freq = st.selectbox(
      'Frequency',
-     ('1m','2m','5m','15m','30m','60m','90m','1h','1d','5d','1wk','1mo','3mo'))
+     ('1h','1m','2m','5m','15m','30m','60m','90m','1d','5d','1wk','1mo','3mo'))
     st.subheader('Mouving Average SMA')
     short = st.number_input('short',value=5)
     long = st.number_input('long', value=8)
