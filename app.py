@@ -7,11 +7,10 @@ from matplotlib.dates import DateFormatter
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
+st.set_page_config(layout="wide")
 st.title('Trading View')
 col1, col2 = st.columns([1, 4])
-
-with col1:
+with st.sidebar:
     st.subheader('Stock Ticker')
     stock = st.text_input('stock name', 'AAPL')
     startdate = st.date_input(
@@ -25,11 +24,11 @@ with col1:
      'Frequency',
      ('1m','2m','5m','15m','30m','60m','90m','1h','1d','5d','1wk','1mo','3mo'))
     st.subheader('Mouving Average SMA')
-    short = st.number_input('short',value=9)
-    long = st.number_input('long', value=30)
+    short = st.number_input('short',value=5)
+    long = st.number_input('long', value=8)
     st.subheader('Initial Balance')
-    money = st.number_input('Investment ammount', value=10000)
-
+    money = st.number_input('Investment ammount', value=500)
+    
 
 DATA = yf.download(stock, start=startdate, end=enddate, interval=freq)# valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
 DATA.reset_index(inplace=True)
@@ -45,8 +44,8 @@ DATA['SMA_30'] = DATA['Close'].rolling(window=long, min_periods=1).mean()
 
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=DATA["Date"], y=DATA["Close"],line=dict(color="#ffffff"),name='Close'))
-fig.add_trace(go.Scatter(x=DATA["Date"], y=DATA["SMA_9"],line=dict(color="#5e30b2"),name='SMA_9'))
-fig.add_trace(go.Scatter(x=DATA["Date"], y=DATA["SMA_30"],line=dict(color="#048bb0"),name='SMA_30'))
+fig.add_trace(go.Scatter(x=DATA["Date"], y=DATA["SMA_9"],line=dict(color="#5e30b2"),name='SMA_Short'))
+fig.add_trace(go.Scatter(x=DATA["Date"], y=DATA["SMA_30"],line=dict(color="#e69520"),name='SMA_Long'))
 fig.update_layout(paper_bgcolor="#0e1117",plot_bgcolor="#0e1117",legend=dict(font=dict(color="white")))
 fig.update_xaxes(showgrid=False, zeroline=False)
 fig.update_yaxes(showgrid=False, zeroline=False)
@@ -90,7 +89,7 @@ backtest['Balance'] = initial_balance * backtest.Alg_Return.cumprod() # cumulati
 
 fig2 = go.Figure()
 fig2.add_trace(go.Scatter(x=DATA["Date"], y=initial_balance*backtest.BTC_Return.cumprod(),line=dict(color="#ffffff"),name='buy & hold'))
-fig2.add_trace(go.Scatter(x=DATA["Date"], y=backtest['Balance'],line=dict(color="#e69520"),name='Algo'))
+fig2.add_trace(go.Scatter(x=DATA["Date"], y=backtest['Balance'],line=dict(color="#048bb0"),name='Algo'))
 fig2.update_layout(paper_bgcolor="#0e1117",plot_bgcolor="#0e1117",legend=dict(font=dict(color="white")))
 fig2.update_xaxes(showgrid=False, zeroline=False)
 fig2.update_yaxes(showgrid=False, zeroline=False)
@@ -101,13 +100,19 @@ fig2.update_yaxes(color="#ffffff")
 
 
 
-with col2:
-    st.header('Price Chart')
-    st.plotly_chart(fig, use_container_width=True)
 
-    
-    st.header('Backtest Chart')
-    st.plotly_chart(fig2, use_container_width=True)
+st.header('Price Chart')
+st.plotly_chart(fig, use_container_width=True)
+
+algopercent=((backtest['Balance'].tail(1).item()-money) / money)*100
+buypercent=((initial_balance*backtest.BTC_Return.cumprod().tail(1).item()-money) / money)*100
+st.header('Backtest Chart')
+col1, col2, col3 = st.columns(3)
+col1.metric("Initial Amount", money)
+col2.metric("Buy & hold ", round(initial_balance*backtest.BTC_Return.cumprod().tail(1).item(),2), round(buypercent,2))
+col3.metric("Algo", round(backtest['Balance'].tail(1).item(),2), round(algopercent,2))
+
+st.plotly_chart(fig2, use_container_width=True)
 
 
 
